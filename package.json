@@ -1,0 +1,43 @@
+{
+  "name": "@hollwann/okai",
+  "version": "0.0.1",
+  "description": "distributed and descentralized cloud",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "test",
+    "dev": "ts-node-dev --respawn --transpileOnly ./src/index.ts",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hollwann/okai.git"
+  },
+  "keywords": [
+    "okai",
+    "distributed",
+    "descentralized",
+    "cloud",
+    "p2p"
+  ],
+  "author": "hollwann",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/hollwann/okai/issues"
+  },
+  "homepage": "https://github.com/hollwann/okai#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.6.0",
+    "@typescript-eslint/parser": "^3.6.0",
+    "eslint": "^7.4.0",
+    "prettier": "^2.0.5",
+    "ts-node-dev": "^1.0.0-pre.51",
+    "typescript": "^3.9.6"
+  },
+  "dependencies": {
+    "peerjs": "^1.3.0",
+    "xstream": "^11.12.0"
+  },
+  "files": [
+    "./lib"
+  ]
+}
