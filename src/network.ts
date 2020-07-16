@@ -16,46 +16,24 @@ type Message = {
   data: string
 }
 
-const createNewconnections = (
-  activeConnections: Stream<Peer.DataConnection[]>,
-  peersInNetwork: Stream<string[]>,
-  localPeer: Peer
-): Stream<Peer.DataConnection> => {
-  const maxActive = activeConnections.filter(conns => conns.length < 128)
-  return xs
-    .combine(peersInNetwork, maxActive)
-    .map(([peers, conns]) => {
-      const activeIds = conns.map(conn => conn.peer)
-      const peersWithoutConnection = peers.filter(id => !activeIds.includes(id))
-
-      const maxNewConnections = 128 - conns.length
-      return xs.merge(
-        ...peersWithoutConnection
-          .slice(0, maxNewConnections)
-          .map(id => connectToPeer(localPeer, id))
-      )
-    })
-    .flatten()
-}
-
 const getSeedConnections = (localPeer: Peer) => {
-  const seeds = ['hollwann']
+  const seeds = [] as string[]
   return xs.merge(...seeds.map(id => connectToPeer(localPeer, id)))
 }
 
 export const initNetwork = (
   localId: string,
   messages: Stream<Message>,
-  peersInNetwork: Stream<string>
+  newConnectionsId: Stream<string>
 ) => {
   const localPeer = initLocalPeer(localId)
 
   const seedsConnections = getSeedConnections(localPeer)
 
-  const activeConnectionsProxy = xs.create() as Stream<Peer.DataConnection[]>
-  const newConnections = peersInNetwork
+  const newConnections = newConnectionsId
     .map(id => connectToPeer(localPeer, id))
     .flatten()
+
   const connections = xs.merge(
     newConnections,
     getPeerConnections(localPeer),
@@ -70,7 +48,6 @@ export const initNetwork = (
       []
     )
     .debug('connections')
-  activeConnectionsProxy.imitate(xs.merge(activeConnections))
 
   const messageToSend = messages
     .compose(sampleCombine(activeConnections))
@@ -78,14 +55,9 @@ export const initNetwork = (
 
   messageToSend.addListener({
     next: ([message, conns]) => {
-      const messageFormatted = {
-        to: message.to,
-        data: message.data,
-        from: localId
-      }
       const toConnection = conns.find(conn => conn.peer == message.to)
       if (toConnection)
-        sendConnectionData(toConnection, JSON.stringify(messageFormatted))
+        sendConnectionData(toConnection, JSON.stringify(message))
     }
   })
 
@@ -111,5 +83,5 @@ export const initNetwork = (
     message => message.to == localId
   )
 
-  return messagesToDecrypt
+  return { messagesToDecrypt }
 }

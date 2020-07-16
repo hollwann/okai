@@ -1,3 +1,1 @@
-import {initNetwork} from './network'
-
-export {initNetwork}
+export {initCrypto} from './crypto'
